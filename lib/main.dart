@@ -14,16 +14,23 @@ void main() async {
 
   await Hive.openBox<Expense>('expenses');
 
-  runApp(ProviderScope(child: ProviderDemoApp()));
+  runApp(const ProviderScope(child: ProviderDemoApp()));
 }
 
 class ProviderDemoApp extends StatelessWidget {
-  const ProviderDemoApp({Key? key}) : super(key: key);
+  const ProviderDemoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeView(),
+      home: const HomeView(),
+      theme: ThemeData(
+        chipTheme: ChipThemeData(
+          padding: EdgeInsets.zero,
+          labelPadding: const EdgeInsets.all(2),
+          labelStyle: Theme.of(context).textTheme.labelSmall,
+        ),
+      ),
     );
   }
 }
@@ -39,18 +46,14 @@ class HomeView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Expense tracker'),
       ),
-      body: Column(
-        children: [
-          CalendarView(),
-          Expanded(
-            child: ExpensesListView(),
-          ),
+      body: const CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: CalendarView()),
+          ExpensesListView()
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO navigate to create screen
-
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CreateExpenseView()),

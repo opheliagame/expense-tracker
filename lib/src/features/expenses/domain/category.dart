@@ -7,7 +7,11 @@ class Category {
   @HiveField(0)
   String name;
 
-  Category(this.name);
+  // UI related
+  @HiveField(1)
+  String displayColor;
+
+  Category({required this.name, this.displayColor = "#ffffff"});
 
   @override
   String toString() {

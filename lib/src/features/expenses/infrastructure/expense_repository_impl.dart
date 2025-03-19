@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-class ExpensesRepositoryImpl implements ExpensesRepository {
+class ExpensesRepositoryImpl implements ExpenseRepository {
   static final box = Hive.box<Expense>('expenses');
 
   @override
@@ -17,12 +17,10 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
     }
   }
 
-// TODO check if async even required here
   @override
   Future<Result<bool>> create(Expense expense) async {
     try {
-      // TODO change ID of new item
-      box.put(Uuid().v4(), expense);
+      box.put(const Uuid().v4(), expense);
 
       return Result.value(true);
     } catch (e) {
@@ -32,4 +30,4 @@ class ExpensesRepositoryImpl implements ExpensesRepository {
 }
 
 final expensesRepositoryProvider =
-    Provider<ExpensesRepository>((ref) => ExpensesRepositoryImpl());
+    Provider<ExpenseRepository>((ref) => ExpensesRepositoryImpl());

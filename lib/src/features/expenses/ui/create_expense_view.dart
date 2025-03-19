@@ -1,5 +1,6 @@
 import 'package:expense_tracker/src/features/expenses/domain/category.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expense.dart';
+import 'package:expense_tracker/src/features/expenses/ui/category_list_notifier.dart';
 import 'package:expense_tracker/src/features/expenses/ui/expenses_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,13 +12,11 @@ class CreateExpenseView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(expensesListViewModelProvider.notifier);
+    final categories = ref.read(categoriesProvider);
 
     final titleTextFieldController = useTextEditingController();
     final amountTextFieldController = useTextEditingController();
-    final category = useState<Category>(Category("food"));
-
-    // TODO change later into class
-    const categories = ['food', 'travel'];
+    final category = useState<Category>(Category(name: "food"));
 
     return Scaffold(
       appBar: AppBar(
@@ -36,18 +35,25 @@ class CreateExpenseView extends HookConsumerWidget {
                   FilteringTextInputFormatter.digitsOnly,
                 ],
               ),
-              DropdownButtonFormField(
-                items: categories
-                    .map(
-                      (e) => DropdownMenuItem(
-                        child: Text(e),
-                        value: e,
-                      ),
-                    )
-                    .toList(),
-                onChanged: (newValue) {
-                  category.value = newValue ?? '';
+              categories.when(
+                data: (data) {
+                  return DropdownButtonFormField<Category>(
+                    items: data
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (newValue) {
+                      if (newValue == null) return;
+                      category.value = newValue;
+                    },
+                  );
                 },
+                error: (error, stack) => Container(),
+                loading: () => const CircularProgressIndicator(),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -61,7 +67,7 @@ class CreateExpenseView extends HookConsumerWidget {
 
                   viewModel.create(newExpense);
                 },
-                child: Text('submit'),
+                child: const Text('submit'),
               ),
             ],
           ),

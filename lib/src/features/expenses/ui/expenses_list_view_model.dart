@@ -1,20 +1,16 @@
 import 'package:async/async.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expense.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expenses_repository.dart';
-import 'package:expense_tracker/src/features/expenses/infrastructure/expenses_repository_impl.dart';
+import 'package:expense_tracker/src/features/expenses/infrastructure/expense_repository_mock.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ExpensesListNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
-  final AutoDisposeStateNotifierProviderRef _ref;
-
-  ExpensesListNotifier({required AutoDisposeStateNotifierProviderRef ref})
-      : _ref = ref,
-        super(const AsyncLoading()) {
+  ExpensesListNotifier({required this.expensesRepository})
+      : super(const AsyncLoading()) {
     load();
   }
 
-  late final ExpensesRepository expensesRepository =
-      _ref.read(expensesRepositoryProvider);
+  final ExpenseRepository expensesRepository;
 
   void load() async {
     final result = await expensesRepository.fetch();
@@ -34,5 +30,8 @@ class ExpensesListNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
 }
 
 final expensesListViewModelProvider = StateNotifierProvider.autoDispose<
-    ExpensesListNotifier,
-    AsyncValue<List<Expense>>>((ref) => ExpensesListNotifier(ref: ref));
+    ExpensesListNotifier, AsyncValue<List<Expense>>>(
+  (ref) => ExpensesListNotifier(
+    expensesRepository: ref.read(expenseRepositoryMockProvider),
+  ),
+);
