@@ -57,11 +57,12 @@ class CreateExpenseScreen extends HookConsumerWidget {
               ElevatedButton(
                 onPressed: () {
                   final newExpense = Expense(
-                    DateTime.now(),
-                    titleTextFieldController.value.text,
-                    double.tryParse(amountTextFieldController.value.text) ??
-                        double.minPositive,
-                    category.value,
+                    createdAt: DateTime.now().toIso8601String(),
+                    title: titleTextFieldController.value.text,
+                    amount:
+                        double.tryParse(amountTextFieldController.value.text) ??
+                            double.minPositive,
+                    category: category.value,
                   );
 
                   viewModel.create(newExpense);

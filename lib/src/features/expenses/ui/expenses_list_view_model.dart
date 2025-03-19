@@ -1,11 +1,11 @@
 import 'package:async/async.dart';
-import 'package:expense_tracker/src/features/expenses/domain/category.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expense.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expenses_repository.dart';
 import 'package:expense_tracker/src/features/expenses/infrastructure/expense_repository_mock.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ExpensesListNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
+class ExpensesListNotifier
+    extends StateNotifier<AsyncValue<ExpensesListWithTotal>> {
   ExpensesListNotifier({required this.expensesRepository})
       : super(const AsyncLoading()) {
     load();
@@ -17,7 +17,7 @@ class ExpensesListNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     final result = await expensesRepository.fetch();
 
     if (result.isValue) {
-      state = AsyncData(result.asValue!.value);
+      state = AsyncData(ExpensesListWithTotal(expenses: result.asValue!.value));
     } else if (result.isError) {
       state =
           AsyncValue.error(result.asError!.error, result.asError!.stackTrace);
@@ -28,20 +28,31 @@ class ExpensesListNotifier extends StateNotifier<AsyncValue<List<Expense>>> {
     final result = await expensesRepository.create(expense);
     return result;
   }
-
-  void filterByCategory(Category category) {
-    final allExpenses = state.asData;
-    if (allExpenses == null) return;
-    final filteredExpenses = allExpenses.value
-        .where((element) => element.category == category)
-        .toList();
-    state = AsyncData(filteredExpenses);
-  }
 }
 
 final expensesListViewModelProvider = StateNotifierProvider.autoDispose<
-    ExpensesListNotifier, AsyncValue<List<Expense>>>(
+    ExpensesListNotifier, AsyncValue<ExpensesListWithTotal>>(
   (ref) => ExpensesListNotifier(
     expensesRepository: ref.read(expenseRepositoryMockProvider),
   ),
+);
+
+final expensesByDateProvider =
+    Provider.autoDispose.family<ExpensesListWithTotal, DateTime>(
+  (ref, dateTime) {
+    final expenses = ref.watch(expensesListViewModelProvider);
+    if (expenses.isLoading || expenses.hasError) {
+      return ExpensesListWithTotal(expenses: []);
+    }
+
+    final date = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    final expensesByDate = expenses.value?.expenses.where((e) {
+      final d = DateTime(e.createdAtDateTime.year, e.createdAtDateTime.month,
+          e.createdAtDateTime.day);
+      return d == date;
+    }).toList();
+
+    return ExpensesListWithTotal(expenses: expensesByDate ?? []);
+  },
 );
