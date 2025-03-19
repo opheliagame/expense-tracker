@@ -1,3 +1,4 @@
+import 'package:expense_tracker/src/features/app_bar/common_app_bar.dart';
 import 'package:expense_tracker/src/features/expenses/domain/category.dart';
 import 'package:expense_tracker/src/features/expenses/domain/expense.dart';
 import 'package:expense_tracker/src/features/expenses/ui/category_list_notifier.dart';
@@ -7,8 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class CreateExpenseView extends HookConsumerWidget {
-  const CreateExpenseView({super.key});
+class CreateExpenseScreen extends HookConsumerWidget {
+  const CreateExpenseScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(expensesListViewModelProvider.notifier);
@@ -19,9 +20,7 @@ class CreateExpenseView extends HookConsumerWidget {
     final category = useState<Category>(Category(name: "food"));
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Expense tracker'),
-      ),
+      appBar: const CommonAppBar(),
       body: SafeArea(
         child: Form(
           child: Column(
