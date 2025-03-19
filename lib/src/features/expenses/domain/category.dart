@@ -17,4 +17,15 @@ class Category {
   String toString() {
     return name;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Category &&
+            runtimeType == other.runtimeType &&
+            hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode => Object.hash(name.hashCode, displayColor.hashCode);
 }

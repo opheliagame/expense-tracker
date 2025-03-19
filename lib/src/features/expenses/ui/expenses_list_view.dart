@@ -42,6 +42,7 @@ class ExpenseListTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isChecked = useState<bool>(false);
+    final expensesNotifier = ref.watch(expensesListViewModelProvider.notifier);
 
     return InkWell(
       mouseCursor: SystemMouseCursors.click,
@@ -65,10 +66,15 @@ class ExpenseListTile extends HookConsumerWidget {
               children: [
                 Text(expense.title, textAlign: TextAlign.left),
                 const SizedBox(width: 4),
-                MyChip(
-                  label: expense.category.name,
-                  backgroundColor:
-                      HexColor.fromHex(expense.category.displayColor),
+                InkWell(
+                  onTap: () {
+                    expensesNotifier.filterByCategory(expense.category);
+                  },
+                  child: MyChip(
+                    label: expense.category.name,
+                    backgroundColor:
+                        HexColor.fromHex(expense.category.displayColor),
+                  ),
                 ),
               ],
             ),
